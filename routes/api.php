@@ -34,6 +34,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['prefix' => 'posts'],function () {
         Route::get('/', 'PostController@index');
         Route::post('save', 'PostController@savePost');
+        Route::get('detail/{postId}', 'PostController@getPostDetail');
     });
     /**
      * Profile

@@ -38,4 +38,15 @@ class PostController extends Controller
         }
         return $response;
     }
+
+    /**
+     * This function returns the post detail
+     * @param $postId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getPostDetail($postId)
+    {
+        $post = Post::findOrFail($postId);
+        return ResponseHelper::successResponse(__('common.data_returned_successfully'),$post);
+    }
 }
