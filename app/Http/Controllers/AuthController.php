@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helper\ResponseHelper;
+use App\Http\Requests\ProfileRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -63,7 +64,31 @@ class AuthController extends Controller
     public function profile()
     {
         $user = Auth::user();
-        return ResponseHelper::successResponse('Current user',['user' => $user]);
+        return ResponseHelper::successResponse('Current user profile',$user);
+    }
+
+    /**
+     * This function updates the user profile
+     * @param ProfileRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateProfile(ProfileRequest $request)
+    {
+        $userId = Auth::id();
+        $profile = [
+          'name' => $request->name,
+          'email' => $request->email,
+          'contact' => $request->contact,
+        ];
+        if ($request->password){
+            $profile['password'] = bcrypt($request->password);
+        }
+        try {
+            User::where('id', $userId)->update($profile);
+            return ResponseHelper::successResponse('Profile updated successfully',$profile);
+        }catch (\Exception $exception){
+            return ResponseHelper::errorResponse($exception->getMessage(),201);
+        }
     }
     /**
      * Refresh a token.

@@ -41,5 +41,6 @@ Route::group(['middleware' => ['auth']], function () {
      */
     Route::group(['prefix' => 'profile'],function () {
         Route::get('/', 'AuthController@profile');
+        Route::patch('update', 'AuthController@updateProfile');
     });
 });
