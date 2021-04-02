@@ -80,7 +80,7 @@ class AuthController extends Controller
           'email' => $request->email,
           'contact' => $request->contact,
         ];
-        if ($request->password){
+        if (isset($request->password)){
             $profile['password'] = bcrypt($request->password);
         }
         try {
