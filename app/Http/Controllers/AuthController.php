@@ -27,7 +27,7 @@ class AuthController extends Controller
         ];
         try {
             User::create($user);
-            return ResponseHelper::successResponse('User registered successfully',['user' => $user]);
+            return ResponseHelper::successResponse('Signup done successfully',['user' => $user]);
         }catch (\Exception $exception){
             return ResponseHelper::errorResponse($exception->getMessage(),201);
         }

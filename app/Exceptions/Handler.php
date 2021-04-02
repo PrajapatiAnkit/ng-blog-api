@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
 
@@ -38,4 +39,15 @@ class Handler extends ExceptionHandler
             //
         });
     }
+//    public function render($request, Throwable $e)
+//    {
+//        /**
+//         * Modify the findOrFail exception to readable json
+//         */
+//       if ($e instanceof ModelNotFoundException){
+//           return response()->json([
+//               'message' => 'Record not found',
+//           ], 404);
+//       }
+//    }
 }

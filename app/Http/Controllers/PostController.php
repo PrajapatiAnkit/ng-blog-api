@@ -32,7 +32,7 @@ class PostController extends Controller
         $userId = Auth::id();
         Post::savePost($postRequest, $userId);
         try {
-            $response = ResponseHelper::successResponse('Post created');
+            $response = ResponseHelper::successResponse('Post has been saved successfully !');
         }catch (\Exception $exception){
             $response = ResponseHelper::errorResponse("some error". $exception->getMessage(), 201);
         }
@@ -46,7 +46,11 @@ class PostController extends Controller
      */
     public function getPostDetail($postId)
     {
-        $post = Post::findOrFail($postId);
+        $post = Post::select('posts.*','users.name as author')
+            ->join('users','posts.user_id','users.id')
+            ->where('posts.id',$postId)
+            ->first();
+
         return ResponseHelper::successResponse(__('common.data_returned_successfully'),$post);
     }
 }

@@ -60,7 +60,7 @@ class Post extends Model
      */
     public static function savePost($request, $userId)
     {
-        return self::updateOrCreate(['id' => $request->id], [
+        return self::updateOrCreate(['id' => $request->post_id], [
             'title' => $request->title,
             'content' => $request->content,
             'tags' => $request->tags,

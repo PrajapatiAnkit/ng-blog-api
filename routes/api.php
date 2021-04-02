@@ -43,4 +43,10 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/', 'AuthController@profile');
         Route::patch('update', 'AuthController@updateProfile');
     });
+    /**
+     * Dashboard
+     */
+    Route::group(['prefix' => 'dashboard'],function () {
+        Route::get('/', 'DashboardController@index');
+    });
 });
