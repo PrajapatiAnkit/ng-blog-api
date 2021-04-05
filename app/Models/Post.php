@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use http\QueryString;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -55,16 +56,46 @@ class Post extends Model
     /**
      * This function creates/updates the post
      * @param $request
+     * @param $featureImage
      * @param $userId
      * @return object
      */
-    public static function savePost($request, $userId)
+    public static function savePost($request, $featureImage, $userId)
     {
-        return self::updateOrCreate(['id' => $request->post_id], [
+        $postData = [
             'title' => $request->title,
             'content' => $request->content,
             'tags' => $request->tags,
             'user_id' => $userId
-        ]);
+        ];
+        if ($featureImage){
+            $postData['featured_image'] = $featureImage;
+        }
+        return self::updateOrCreate(['id' => $request->post_id], $postData);
     }
+
+    /**
+     * This is is special function called 'scopes' to enhance the
+     * query result before returning to client side
+     * @param $query
+     * @return QueryString
+     */
+    public function scopeLatest($query)
+    {
+        return $query->orderBy('posts.created_at','DESC');
+    }
+
+    /**
+     * This is special function accessor in laravel to modify the value before
+     * sending it to client side
+     * @param $value
+     * @return string
+     */
+    /*public function getFeaturedImageAttribute($value): string
+    {
+        if($value){
+            return asset('storage/uploads/thumbnail/'.$value);
+        }
+        return '';
+    }*/
 }

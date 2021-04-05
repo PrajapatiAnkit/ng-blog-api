@@ -5,20 +5,26 @@ namespace App\Http\Controllers;
 use App\Helper\ResponseHelper;
 use App\Http\Requests\PostRequest;
 use App\Models\Post;
+use App\Services\MediaService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
+    /**
+     * This function loads all the posts created by users
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function index()
     {
         try {
             $posts = Post::select('posts.*','users.name as author')
                 ->join('users','posts.user_id','users.id')
-                ->orderBy('posts.created_at','DESC')
+                ->latest()
                 ->get();
-            $response = ResponseHelper::successResponse(config('constants.lang.data_returned_successfully'),$posts);
+            $response = ResponseHelper::successResponse(__('common.data_returned_successfully'),$posts);
         }catch (\Exception $exception){
-            $response = ResponseHelper::errorResponse(__('common.lang.data_returned_successfully'). $exception->getMessage(), 201);
+            $response = ResponseHelper::errorResponse(__('common.some_error'). $exception->getMessage(), 201);
         }
         return $response;
     }
@@ -29,12 +35,25 @@ class PostController extends Controller
      */
     public function savePost(PostRequest $postRequest)
     {
-        $userId = Auth::id();
-        Post::savePost($postRequest, $userId);
         try {
-            $response = ResponseHelper::successResponse('Post has been saved successfully !');
+            $userId = Auth::id();
+            $fileName = null;
+            if ($postRequest->feature_image != ''){
+                $thumbnailPath = config('constants.paths.thumbnail');
+                $fileName = Str::slug($postRequest->title).'_'.time().'.png';
+                $base64Image = $postRequest->feature_image;
+                if ($postRequest->post_id){
+                    $preFile = Post::findOrFail($postRequest->post_id,['featured_image']);
+                    $preFile = $preFile->featured_image;
+                }else{
+                    $preFile = null;
+                }
+                MediaService::uploadMedia($base64Image,$fileName, $thumbnailPath, $preFile);
+            }
+            Post::savePost($postRequest, $fileName, $userId);
+            $response = ResponseHelper::successResponse(__('post.post_saved_successfully'));
         }catch (\Exception $exception){
-            $response = ResponseHelper::errorResponse("some error". $exception->getMessage(), 201);
+            $response = ResponseHelper::errorResponse(__('common.some_error'). $exception->getMessage(), 201);
         }
         return $response;
     }
@@ -51,6 +70,9 @@ class PostController extends Controller
             ->where('posts.id',$postId)
             ->first();
 
-        return ResponseHelper::successResponse(__('common.data_returned_successfully'),$post);
+        return ResponseHelper::successResponse(__('common.data_returned_successfully'),[
+            'post' => $post,
+            'thumbnail_path' => asset('storage/uploads/thumbnail/').'/',
+        ]);
     }
 }

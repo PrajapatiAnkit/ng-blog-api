@@ -27,7 +27,7 @@ class AuthController extends Controller
         ];
         try {
             User::create($user);
-            return ResponseHelper::successResponse('Signup done successfully',['user' => $user]);
+            return ResponseHelper::successResponse(__('common.signup_successful'),['user' => $user]);
         }catch (\Exception $exception){
             return ResponseHelper::errorResponse($exception->getMessage(),201);
         }
@@ -44,7 +44,10 @@ class AuthController extends Controller
         if (! $token = JWTAuth::attempt($credentials)) {
             return ResponseHelper::errorResponse('login failed', 200);
         }
-        return ResponseHelper::successResponse('login successful !',['user' => Auth::user(),'token' => $token]);
+        return ResponseHelper::successResponse(__('common.login_successful'),[
+            'user' => Auth::user(),
+            'token' => $token
+        ]);
     }
 
     /**
@@ -54,7 +57,7 @@ class AuthController extends Controller
     public function logout()
     {
         auth()->logout();
-        return ResponseHelper::successResponse('logged out successfully !');
+        return ResponseHelper::successResponse(__('common.logged_out_successfully'));
     }
 
     /**
@@ -64,7 +67,7 @@ class AuthController extends Controller
     public function profile()
     {
         $user = Auth::user();
-        return ResponseHelper::successResponse('Current user profile',$user);
+        return ResponseHelper::successResponse(__('profile.current_user_is'),$user);
     }
 
     /**
@@ -85,7 +88,7 @@ class AuthController extends Controller
         }
         try {
             User::where('id', $userId)->update($profile);
-            return ResponseHelper::successResponse('Profile updated successfully',$profile);
+            return ResponseHelper::successResponse(__('profile.profile_updated_successfully'),$profile);
         }catch (\Exception $exception){
             return ResponseHelper::errorResponse($exception->getMessage(),201);
         }
