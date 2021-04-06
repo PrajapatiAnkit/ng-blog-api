@@ -5,9 +5,13 @@ namespace App\Http\Controllers;
 use App\Helper\ResponseHelper;
 use App\Http\Requests\ProfileRequest;
 use App\Http\Requests\RegisterRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Services\MediaService;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
@@ -45,7 +49,7 @@ class AuthController extends Controller
             return ResponseHelper::errorResponse('login failed', 200);
         }
         return ResponseHelper::successResponse(__('common.login_successful'),[
-            'user' => Auth::user(),
+            'user' => new UserResource(Auth::user()),
             'token' => $token
         ]);
     }
@@ -66,8 +70,9 @@ class AuthController extends Controller
      */
     public function profile()
     {
-        $user = Auth::user();
-        return ResponseHelper::successResponse(__('profile.current_user_is'),$user);
+        $userId = Auth::id();
+        $user = UserService::getUserData($userId);
+        return ResponseHelper::successResponse(__('profile.current_user_is'),new UserResource($user));
     }
 
     /**
@@ -77,18 +82,29 @@ class AuthController extends Controller
      */
     public function updateProfile(ProfileRequest $request)
     {
-        $userId = Auth::id();
+        $preProfile = null;
+        $user = Auth::user();
+        $userId = $user->id;
         $profile = [
-          'name' => $request->name,
-          'email' => $request->email,
-          'contact' => $request->contact,
+            'name' => $request->name,
+            'email' => $request->email,
+            'contact' => $request->contact,
         ];
+        if ($request->profile_pic != ''){
+            $user = User::findOrFail($userId,['profile_pic']);
+            $preProfile = $user->getRawOriginal('profile_pic');
+            $profilePicPath = config('constants.paths.profile');
+            $profilePicName = Str::slug($request->name.time()).'.png';
+            MediaService::uploadMedia($request->profile_pic, $profilePicName, $profilePicPath, $preProfile);
+            $profile['profile_pic'] = $profilePicName;
+        }
         if (isset($request->password)){
             $profile['password'] = bcrypt($request->password);
         }
         try {
-            User::where('id', $userId)->update($profile);
-            return ResponseHelper::successResponse(__('profile.profile_updated_successfully'),$profile);
+             User::where('id', $userId)->update($profile);
+            $user = UserService::getUserData($userId);
+            return ResponseHelper::successResponse(__('profile.profile_updated_successfully'),new UserResource($user));
         }catch (\Exception $exception){
             return ResponseHelper::errorResponse($exception->getMessage(),201);
         }

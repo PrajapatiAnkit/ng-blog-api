@@ -91,11 +91,11 @@ class Post extends Model
      * @param $value
      * @return string
      */
-    /*public function getFeaturedImageAttribute($value): string
+    public function getFeaturedImageAttribute($value): string
     {
         if($value){
             return asset('storage/uploads/thumbnail/'.$value);
         }
         return '';
-    }*/
+    }
 }

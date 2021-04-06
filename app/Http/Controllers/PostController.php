@@ -43,8 +43,8 @@ class PostController extends Controller
                 $fileName = Str::slug($postRequest->title).'_'.time().'.png';
                 $base64Image = $postRequest->feature_image;
                 if ($postRequest->post_id){
-                    $preFile = Post::findOrFail($postRequest->post_id,['featured_image']);
-                    $preFile = $preFile->featured_image;
+                    $post = Post::findOrFail($postRequest->post_id,['featured_image']);
+                    $preFile = $post->getRawOriginal('featured_image');
                 }else{
                     $preFile = null;
                 }
@@ -69,10 +69,10 @@ class PostController extends Controller
             ->join('users','posts.user_id','users.id')
             ->where('posts.id',$postId)
             ->first();
-
-        return ResponseHelper::successResponse(__('common.data_returned_successfully'),[
-            'post' => $post,
-            'thumbnail_path' => asset('storage/uploads/thumbnail/').'/',
-        ]);
+        if ($post){
+            return ResponseHelper::successResponse(__('common.data_returned_successfully'),['post' => $post]);
+        }else{
+            return ResponseHelper::errorResponse(__('common.data_returned_successfully'),404);
+        }
     }
 }

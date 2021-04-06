@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Helper\UtilityHelper;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -50,5 +50,16 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    /**
+     * This is special function accessor in laravel to modify the value before
+     * sending it to client side
+     * @param $value
+     * @return string
+     */
+    public function getProfilePicAttribute($value)
+    {
+        return $value ? asset('storage/uploads/profile/'. $value) : UtilityHelper::getDefaultAvtar() ;
     }
 }

@@ -37,6 +37,13 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('detail/{postId}', 'PostController@getPostDetail');
     });
     /**
+     * Comments
+     */
+    Route::group(['prefix' => 'comments'],function () {
+        Route::get('/{postId}', 'CommentController@index');
+        Route::post('add', 'CommentController@addComment');
+    });
+    /**
      * Profile
      */
     Route::group(['prefix' => 'profile'],function () {
