@@ -46,7 +46,7 @@ class AuthController extends Controller
     {
         $credentials = ['email' => $request->email, 'password' => $request->password];
         if (! $token = JWTAuth::attempt($credentials)) {
-            return ResponseHelper::errorResponse('login failed', 200);
+            return ResponseHelper::errorResponse('Login failed, please try again', 200);
         }
         return ResponseHelper::successResponse(__('common.login_successful'),[
             'user' => new UserResource(Auth::user()),
