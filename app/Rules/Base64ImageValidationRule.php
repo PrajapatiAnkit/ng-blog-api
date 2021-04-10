@@ -42,6 +42,6 @@ class Base64ImageValidationRule implements Rule
      */
     public function message()
     {
-        return 'Profile pic should be image. Allowed file are png and jpeg';
+        return 'Chosen file should be image type. Allowed file are png and jpeg';
     }
 }

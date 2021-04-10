@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\Base64ImageValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class PostRequest extends FormRequest
@@ -24,9 +25,10 @@ class PostRequest extends FormRequest
     public function rules()
     {
         return [
-            'title' => 'required|string',
-            'content' => 'required|string|max:255',
-            'tags' => 'required|string|max:255',
+            'title' => 'required|string|min:5|max:255',
+            'content' => 'required|string|min:5|max:255',
+            'tags' => 'required|string|min:5|max:255',
+            'feature_image' => ['nullable', new Base64ImageValidationRule()],
         ];
     }
 }
