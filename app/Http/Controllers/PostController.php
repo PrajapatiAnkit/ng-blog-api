@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Helper\ResponseHelper;
 use App\Http\Requests\PostRequest;
+use App\Models\Favorite;
 use App\Models\Post;
 use App\Services\MediaService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
@@ -18,11 +20,15 @@ class PostController extends Controller
     public function index()
     {
         try {
+            $favoritePosts = Favorite::getFavoritesPostsIds(Auth::id());
             $posts = Post::select('posts.*','users.name as author')
                 ->join('users','posts.user_id','users.id')
                 ->latest()
-                ->get();
-            $response = ResponseHelper::successResponse(__('common.data_returned_successfully'),$posts);
+                ->paginate(10);
+            $response = ResponseHelper::successResponse(__('common.data_returned_successfully'),[
+                'posts' => $posts,
+                'favorites' => $favoritePosts
+            ]);
         }catch (\Exception $exception){
             $response = ResponseHelper::errorResponse(__('common.some_error'). $exception->getMessage(), 201);
         }
@@ -65,14 +71,36 @@ class PostController extends Controller
      */
     public function getPostDetail($postId)
     {
+        $favoritePosts = Favorite::getFavoritesPostsIds(Auth::id());
         $post = Post::select('posts.*','users.name as author')
             ->join('users','posts.user_id','users.id')
             ->where('posts.id',$postId)
             ->first();
         if ($post){
-            return ResponseHelper::successResponse(__('common.data_returned_successfully'),['post' => $post]);
+            return ResponseHelper::successResponse(__('common.data_returned_successfully'),['post' => $post,'favorites' => $favoritePosts]);
         }else{
             return ResponseHelper::errorResponse(__('common.data_returned_successfully'),404);
+        }
+    }
+
+    /**
+     * This function markes the post as favorite
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function markFavorite(Request $request)
+    {
+        try{
+            $userId = Auth::id();
+            if ($request->status == Favorite::FAVORITE) {
+                $message = __('post.marked_favorites');
+            }else{
+                $message = __('post.marked_un_favorites');
+            }
+            Favorite::markFavorite($request->post_id, $userId, $request->status);
+            return ResponseHelper::successResponse($message);
+        }catch(\Exception $e){
+            return  ResponseHelper::errorResponse(__('common.some_error'). $e->getMessage(), 201);
         }
     }
 }

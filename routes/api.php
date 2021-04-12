@@ -56,4 +56,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['prefix' => 'dashboard'],function () {
         Route::get('/', 'DashboardController@index');
     });
+    Route::group(['prefix' => 'favorites'],function () {
+        Route::post('mark', 'PostController@markFavorite');
+    });
 });
