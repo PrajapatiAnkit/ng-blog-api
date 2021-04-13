@@ -21,9 +21,7 @@ class PostController extends Controller
     {
         try {
             $favoritePosts = Favorite::getFavoritesPostsIds(Auth::id());
-            $posts = Post::select('posts.*','users.name as author')
-                ->join('users','posts.user_id','users.id')
-                ->latest()
+            $posts = Post::postSelect()
                 ->paginate(10);
             $response = ResponseHelper::successResponse(__('common.data_returned_successfully'),[
                 'posts' => $posts,
@@ -99,6 +97,26 @@ class PostController extends Controller
             }
             Favorite::markFavorite($request->post_id, $userId, $request->status);
             return ResponseHelper::successResponse($message);
+        }catch(\Exception $e){
+            return  ResponseHelper::errorResponse(__('common.some_error'). $e->getMessage(), 201);
+        }
+    }
+
+    /**
+     * This function returns the current user
+     * favorite posts
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getFavoritePosts()
+    {
+        try {
+            $userId = Auth::id();
+            $favoritePosts = Favorite::select('posts.*','users.name as author')
+                ->join('posts','favorites.post_id','posts.id')
+                ->join('users','posts.user_id','users.id')
+                ->where('favorites.user_id',$userId)
+                ->get();
+            return ResponseHelper::successResponse(__('common.data_returned_successfully'),$favoritePosts);
         }catch(\Exception $e){
             return  ResponseHelper::errorResponse(__('common.some_error'). $e->getMessage(), 201);
         }

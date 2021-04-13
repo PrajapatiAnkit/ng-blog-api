@@ -98,4 +98,10 @@ class Post extends Model
         }
         return '';
     }
+    public function scopePostSelect($query)
+    {
+        return $query->select('posts.*','users.name as author')
+            ->join('users','posts.user_id','users.id')
+            ->latest();
+    }
 }

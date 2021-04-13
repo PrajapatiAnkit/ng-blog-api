@@ -58,5 +58,6 @@ Route::group(['middleware' => ['auth']], function () {
     });
     Route::group(['prefix' => 'favorites'],function () {
         Route::post('mark', 'PostController@markFavorite');
+        Route::get('mine', 'PostController@getFavoritePosts');
     });
 });
