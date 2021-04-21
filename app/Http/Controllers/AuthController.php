@@ -16,6 +16,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
+
     /**
      * This function is to register the new user
      * @param RegisterRequest $request
