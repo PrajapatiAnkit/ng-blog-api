@@ -2,23 +2,26 @@
 
 namespace App\Models;
 
+use App\Casts\Json;
 use http\QueryString;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Post extends Model
 {
     use HasFactory;
     const ACTIVE = 1;
     const INACTIVE = 2;
-    const ARCHIVE = 3;
 
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
-    protected $fillable = ['title','content', 'featured_image', 'tags','user_id'];
+    protected $fillable = ['title','slug','content','featured_image','tags',
+        'categories','user_id','status'
+    ];
 
     /**
      * The attributes that aren't mass assignable.
@@ -45,9 +48,11 @@ class Post extends Model
      */
     protected $casts = [
         'title' => 'string',
+        'slug' => 'string',
         'content' => 'string',
         'featured_image' => 'string',
         'tags' => 'string',
+        'categories' => Json::class,
         'created_at' => 'date:d/m/Y',
         'user_id ' => 'int',
         'status' => 'int',
@@ -64,8 +69,10 @@ class Post extends Model
     {
         $postData = [
             'title' => $request->title,
+            'slug' => Str::slug($request->title),
             'content' => $request->content,
             'tags' => $request->tags,
+            'categories' => explode(',', $request->categories),
             'user_id' => $userId
         ];
         if ($featureImage){

@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+header('Access-Control-Allow-Origin:  *');
+header('Access-Control-Allow-Methods:  POST, GET, OPTIONS, PUT,PATCH, DELETE');
+header('Access-Control-Allow-Headers:  Content-Type, X-Auth-Token, Origin, Authorization');
 
 Route::get('/', function (Request $request) {
     \Illuminate\Support\Facades\Artisan::call('storage:link');
@@ -49,7 +52,7 @@ Route::group(['middleware' => ['auth']], function () {
      */
     Route::group(['prefix' => 'profile'],function () {
         Route::get('/', 'AuthController@profile');
-        Route::patch('update', 'AuthController@updateProfile');
+        Route::post('update', 'AuthController@updateProfile');
     });
     /**
      * Dashboard
@@ -60,5 +63,11 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['prefix' => 'favorites'],function () {
         Route::post('mark', 'PostController@markFavorite');
         Route::get('mine', 'PostController@getFavoritePosts');
+    });
+    /**
+     * Categories
+     */
+    Route::group(['prefix' => 'categories'], function () {
+        Route::get('/', 'CategoryController@index');
     });
 });

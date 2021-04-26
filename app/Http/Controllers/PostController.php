@@ -41,18 +41,16 @@ class PostController extends Controller
     {
         try {
             $userId = Auth::id();
-            $fileName = null;
-            if ($postRequest->feature_image != ''){
+            $preFile = null;
+            $fileName = '';
+            if ($postRequest->featured_image != ''){
                 $thumbnailPath = config('constants.paths.thumbnail');
-                $fileName = Str::slug($postRequest->title).'_'.time().'.png';
-                $base64Image = $postRequest->feature_image;
+                $fileName = Str::slug($postRequest->title);
                 if ($postRequest->post_id){
                     $post = Post::findOrFail($postRequest->post_id,['featured_image']);
                     $preFile = $post->getRawOriginal('featured_image');
-                }else{
-                    $preFile = null;
                 }
-                MediaService::uploadMedia($base64Image,$fileName, $thumbnailPath, $preFile);
+                $fileName = MediaService::saveMedia($postRequest->featured_image, $thumbnailPath, $preFile, $fileName);
             }
             Post::savePost($postRequest, $fileName, $userId);
             $response = ResponseHelper::successResponse(__('post.post_saved_successfully'));

@@ -95,8 +95,7 @@ class AuthController extends Controller
             $user = User::findOrFail($userId,['profile_pic']);
             $preProfile = $user->getRawOriginal('profile_pic');
             $profilePicPath = config('constants.paths.profile');
-            $profilePicName = Str::slug($request->name.time()).'.png';
-            MediaService::uploadMedia($request->profile_pic, $profilePicName, $profilePicPath, $preProfile);
+            $profilePicName = MediaService::saveMedia($request->profile_pic, $profilePicPath, $preProfile, Str::slug($request->name));
             $profile['profile_pic'] = $profilePicName;
         }
         if (isset($request->password)){

@@ -26,9 +26,11 @@ class PostRequest extends FormRequest
     {
         return [
             'title' => 'required|string|min:5|max:255',
-            'content' => 'required|string|min:5|max:255',
+            'categories.*' => 'required',
             'tags' => 'required|string|min:5|max:255',
-            'feature_image' => ['nullable', new Base64ImageValidationRule()],
+            'featured_image' => 'nullable|mimes:jpg,jpeg,png,JPG,JPEG,PNG',
+            'content' => 'required|string|min:5|max:500',
+            //'featured_image' => ['nullable', new Base64ImageValidationRule()],
         ];
     }
 }

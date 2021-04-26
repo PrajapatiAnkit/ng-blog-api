@@ -29,7 +29,8 @@ class ProfileRequest extends FormRequest
             'email' => 'required|email|max:20',
             'contact' => 'required|numeric|digits:10',
             'password' => 'nullable|string|min:6|max:10',
-            'profile_pic' => ['nullable', new Base64ImageValidationRule()],
+            'profile_pic' => 'nullable|mimes:jpg,jpeg,png,JPG,JPEG,PNG'
+            //'profile_pic' => ['nullable', new Base64ImageValidationRule()],
         ];
     }
 }
