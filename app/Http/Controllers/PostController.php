@@ -32,6 +32,24 @@ class PostController extends Controller
         }
         return $response;
     }
+
+    /**
+     * This function returns the current user created posts
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getMyPost()
+    {
+        try {
+            $myPosts = $posts = Post::postSelect()
+                ->where('posts.user_id', Auth::id())
+                ->paginate(10);
+            return ResponseHelper::successResponse(__('common.data_returned_successfully'),[
+                'my_posts' => $myPosts
+            ]);
+        }catch (\Exception $exception){
+            return ResponseHelper::errorResponse(__('common.some_error'). $exception->getMessage(), 201);
+        }
+    }
     /**
      * This function creates/updates the post
      * @param PostRequest $postRequest

@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 header('Access-Control-Allow-Origin:  *');
 header('Access-Control-Allow-Methods:  POST, GET, OPTIONS, PUT,PATCH, DELETE');
-header('Access-Control-Allow-Headers:  Content-Type, X-Auth-Token, Origin, Authorization');
+header('Access-Control-Allow-Headers:  Content-Type, X-Auth-Token, x-xsrf-token, Origin, Authorization');
 
 Route::get('/', function (Request $request) {
     \Illuminate\Support\Facades\Artisan::call('storage:link');
@@ -37,6 +37,7 @@ Route::group(['middleware' => ['auth']], function () {
      */
     Route::group(['prefix' => 'posts'],function () {
         Route::get('/', 'PostController@index');
+        Route::get('my-posts', 'PostController@getMyPost');
         Route::post('save', 'PostController@savePost');
         Route::get('detail/{postId}', 'PostController@getPostDetail');
     });
