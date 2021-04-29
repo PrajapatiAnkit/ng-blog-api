@@ -42,6 +42,8 @@ class Post extends Model
      */
     protected $dates = ['created_at', 'updated_at'];
 
+    protected $appends = ['post_categories'];
+
     /**
      * The attributes that should be cast to native types.
      * @var array
@@ -110,5 +112,39 @@ class Post extends Model
         return $query->select('posts.*','users.name as author')
             ->join('users','posts.user_id','users.id')
             ->latest();
+    }
+    /**
+     * This is special function accessor in laravel to modify the value before
+     * sending it to client side
+     * @param $status
+     * @return string
+     */
+    public function getStatusAttribute($status): string
+    {
+        return $status == 1 ? 'Active': 'Inactive';
+    }
+    public function getPostCategoriesAttribute()
+    {
+        $categoriesNames = '';
+        if ($this->categories){
+            $categoriesId =  $this->categories;
+            $categoriesNames = Category::whereIn('id', $categoriesId)->pluck('name');
+            if($categoriesNames){
+                $categoriesNames = $categoriesNames->toArray();
+                $categoriesNames =  implode(',',$categoriesNames);
+            }
+        }
+        return $categoriesNames;
+    }
+
+    /**
+     * This is the laravel relationship to get comments of its posts
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function comments()
+    {
+        return $this->hasMany(Comment::class,'post_id','id')
+            ->select('comments.id','comments.post_id','comments.comment','users.name as person_name')
+            ->join('users','comments.user_id','users.id');
     }
 }

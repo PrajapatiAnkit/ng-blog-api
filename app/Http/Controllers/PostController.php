@@ -37,10 +37,11 @@ class PostController extends Controller
      * This function returns the current user created posts
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getMyPost()
+    public function getMyPosts()
     {
         try {
             $myPosts = $posts = Post::postSelect()
+                ->withCount('comments')
                 ->where('posts.user_id', Auth::id())
                 ->paginate(10);
             return ResponseHelper::successResponse(__('common.data_returned_successfully'),[
@@ -87,11 +88,28 @@ class PostController extends Controller
     {
         $favoritePosts = Favorite::getFavoritesPostsIds(Auth::id());
         $post = Post::select('posts.*','users.name as author')
+            ->with('comments')
             ->join('users','posts.user_id','users.id')
             ->where('posts.id',$postId)
             ->first();
         if ($post){
             return ResponseHelper::successResponse(__('common.data_returned_successfully'),['post' => $post,'favorites' => $favoritePosts]);
+        }else{
+            return ResponseHelper::errorResponse(__('common.data_returned_successfully'),404);
+        }
+    }
+    /**
+     * This function returns the post info
+     * @param $postId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getPostInfo($postId)
+    {
+        $post = Post::select('posts.*')
+            ->where('posts.id',$postId)
+            ->first();
+        if ($post){
+            return ResponseHelper::successResponse(__('common.data_returned_successfully'), $post);
         }else{
             return ResponseHelper::errorResponse(__('common.data_returned_successfully'),404);
         }
@@ -133,6 +151,25 @@ class PostController extends Controller
                 ->where('favorites.user_id',$userId)
                 ->get();
             return ResponseHelper::successResponse(__('common.data_returned_successfully'),$favoritePosts);
+        }catch(\Exception $e){
+            return  ResponseHelper::errorResponse(__('common.some_error'). $e->getMessage(), 201);
+        }
+    }
+
+    /**
+     * This function updates the post status
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function changeStatus(Request $request)
+    {
+        try{
+            $message = '';
+            if ($request->status == Post::INACTIVE) {
+                $message = __('post.archived');
+            }
+            Post::where('id', $request->id)->update(['status' => POST::INACTIVE]);
+            return ResponseHelper::successResponse($message);
         }catch(\Exception $e){
             return  ResponseHelper::errorResponse(__('common.some_error'). $e->getMessage(), 201);
         }
